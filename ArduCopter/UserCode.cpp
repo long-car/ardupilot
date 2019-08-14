@@ -44,7 +44,7 @@ void Copter::userhook_SuperSlowLoop()
     userTimer++;	// Update timer
 
     // Trigger diversion after 150 seconds
-    if (userTimer == 150) {
+    if (userTimer == 30) {
 		cmd.id = MAV_CMD_NAV_WAYPOINT;	// Command ID set to waypoint navigation
 		cmd.p1 = 0;	// User controlled value set to zero because it's useless
 		cmd.content.location = Location {	// Assign location info for waypoint
@@ -73,8 +73,8 @@ void Copter::userhook_SuperSlowLoop()
 		};
 		cmd_lst[2] = cmd;	// add command to list
 
-		// call divert to update mission with new commands from cmd_lst
-    	if (!Diversion().divert(cmd_lst, 3)) hal.console->printf("Failed to Divert\n");
+		// call divert to update mission with new commands from cmd_lst starting at waypoint 6
+    	if (!Diversion().divert(cmd_lst, 3, 6)) hal.console->printf("Failed to Divert\n");
     }
 }
 #endif

@@ -39,15 +39,27 @@ void Diversion::print_mission () {
 
 // Diverts single command, restarts mission from diverted command if restart == true
 // Restart is automatic unless restart is set to 0
+// Replaces command specified by start
 // Returns false if diversion fails
-bool Diversion::divert (AP_Mission::Mission_Command &cmd, bool restart) {
+bool Diversion::divert (AP_Mission::Mission_Command &cmd, bool restart, int start) {
 	bool ret = true;
 
 	hal.console->printf("Diverting...\n");
 
-	// Get current navigation index
-	uint16_t curr_index = copter.mode_auto.mission.get_current_nav_index();
-	uint16_t start_index = curr_index;	// Set start index to start from current command index
+	uint16_t curr_index = 0;
+	uint16_t start_index = 0;
+
+	// Check to see where to start from
+	if (start == -1) {	// Start from current command
+		// Get current navigation index
+		curr_index = copter.mode_auto.mission.get_current_nav_index();
+		start_index = curr_index;	// Set start index to start from current command index
+	} else {
+		// Set indexes to start
+		curr_index = start;
+		start_index = start;
+	}
+	
 	AP_Mission::Mission_Command nxtCmd;	// Command to hold next command
 
 	//	Iterate through entire mission
@@ -82,8 +94,8 @@ bool Diversion::divert (AP_Mission::Mission_Command &cmd, bool restart) {
 	return ret;	// Returns true if diversion succeeds
 }
 
-// Updates mission with list of new diversions
-bool Diversion::divert (AP_Mission::Mission_Command cmd[], int num_cmds) {
+// Updates mission with list of new diversions starting at index start
+bool Diversion::divert (AP_Mission::Mission_Command cmd[], int num_cmds, int start) {
 	bool ret = true;
 
 	hal.console->printf("Diverting %d Commands...\n", num_cmds);
@@ -91,12 +103,12 @@ bool Diversion::divert (AP_Mission::Mission_Command cmd[], int num_cmds) {
 	// Update mission with each new command, starting with last command
 	for (int i = num_cmds-1; i >= 0; i--) {
 		if (i != 0) {
-			if (!divert(cmd[i], 0)) {	// Don't restart until all commands are updated
+			if (!divert(cmd[i], 0, start)) {	// Don't restart until all commands are updated
 				hal.console->printf("Failed to divert\n");
 				ret = false;
 			}
 		} else {	// Restart mission after adding final command
-			if (!divert(cmd[i])) {
+			if (!divert(cmd[i], 1, start)) {
 				hal.console->printf("Failed to divert\n");
 				ret = false;
 			}
