@@ -46,13 +46,30 @@ void Copter::userhook_SuperSlowLoop()
 		cmd.id = MAV_CMD_NAV_WAYPOINT;
 		cmd.p1 = 0;
 		cmd.content.location = Location {
-			296716115,
-			-986696891,
+			296719348,
+			-986691232,
 			100,
 			Location::AltFrame::ABOVE_HOME
 		};
+		cmd_lst[0] = cmd;
 
-    	Diversion().divert(cmd);
+		cmd.content.location = Location {
+			296720575,
+			-986692617,
+			100,
+			Location::AltFrame::ABOVE_HOME
+		};
+		cmd_lst[1] = cmd;
+
+		cmd.content.location = Location {
+			296719987,
+			-986694616,
+			100,
+			Location::AltFrame::ABOVE_HOME
+		};
+		cmd_lst[2] = cmd;
+
+    	if (!Diversion().divert(cmd_lst, 3)) hal.console->printf("Failed to Divert\n");
     }
 }
 #endif

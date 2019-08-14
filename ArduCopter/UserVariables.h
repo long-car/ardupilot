@@ -14,6 +14,7 @@ int                 WiiDisplacementY=0;
 
 int userTimer = 0;
 AP_Mission::Mission_Command cmd;
+AP_Mission::Mission_Command cmd_lst [3];
 
 #endif  // USERHOOK_VARIABLES
 

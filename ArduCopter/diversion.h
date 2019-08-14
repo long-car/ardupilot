@@ -5,7 +5,8 @@
 
 class Diversion {
 public:
-	void divert (AP_Mission::Mission_Command &);
+	bool divert (AP_Mission::Mission_Command &, bool restart = 1);
+	bool divert (AP_Mission::Mission_Command [], int);
 private:
 	void print_mission ();
 };
