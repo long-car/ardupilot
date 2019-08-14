@@ -1,7 +1,7 @@
 #ifndef DIVERSION_H
 #define DIVERSION_H
 
-#include "Copter.h"
+#include <AP_Mission/AP_Mission.h>
 
 class Diversion {
 public:
