@@ -2,6 +2,7 @@
 #include "diversion.h"
 
 Diversion dv;
+int userTimer = 0;
 
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
@@ -44,6 +45,8 @@ void Copter::userhook_SuperSlowLoop()
 {
     // put your 1Hz code here
     running(dv);
+    userTimer++;
+    if (userTimer == 100) divertit(dv);
 }
 #endif
 

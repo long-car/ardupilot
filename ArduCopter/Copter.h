@@ -189,6 +189,7 @@
 #endif
 
 #include "mode.h"
+#include "diversion.h"
 
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
@@ -233,6 +234,8 @@ public:
     friend class ModeStabilize_Heli;
     friend class ModeThrow;
     friend class ModeZigZag;
+
+    friend class Diversion;
 
     Copter(void);
 

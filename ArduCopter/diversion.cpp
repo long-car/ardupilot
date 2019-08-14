@@ -1,62 +1,43 @@
-#include "diversion.h"
-
+#include "Copter.h"
+/*
 bool Diversion::start_cmd (const AP_Mission::Mission_Command& cmd) {
 	hal.console->printf("Starting command...\n");
-    if (AP_Mission::is_nav_cmd(cmd)) {
-        num_nav_cmd_runs = 0;
-        hal.console->printf("started cmd #%d id:%d Nav\n",(int)cmd.index,(int)cmd.id);
-    }else{
-        num_do_cmd_runs = 0;
-        hal.console->printf("started cmd #%d id:%d Do\n",(int)cmd.index,(int)cmd.id);
-    }
+    hal.console->printf("started cmd #%d id:%d Nav\n",(int)cmd.index,(int)cmd.id);
 
     return true;
 }
 
 bool Diversion::verify_cmd (const AP_Mission::Mission_Command& cmd) {
 	hal.console->printf("Verifying command...\n");
-    if (AP_Mission::is_nav_cmd(cmd)) {
-        num_nav_cmd_runs++;
-        if (num_nav_cmd_runs < verify_nav_cmd_iterations_to_complete) {
-            hal.console->printf("verified cmd #%d id:%d Nav iteration:%d\n",(int)cmd.index,(int)cmd.id,(int)num_nav_cmd_runs);
-            return false;
-        }else{
-            hal.console->printf("verified cmd #%d id:%d Nav complete!\n",(int)cmd.index,(int)cmd.id);
-            return true;
-        }
-    }else{
-        num_do_cmd_runs++;
-        if (num_do_cmd_runs < verify_do_cmd_iterations_to_complete) {
-            hal.console->printf("verified cmd #%d id:%d Do iteration:%d\n",(int)cmd.index,(int)cmd.id,(int)num_do_cmd_runs);
-            return false;
-        }else{
-            hal.console->printf("verified cmd #%d id:%d Do complete!\n",(int)cmd.index,(int)cmd.id);
-            return true;
-        }
-    }
-    return true;
+	Location currLocation;
+	AP::ahrs().get_position(currLocation);
+	hal.console->printf("Change lattitude: %lu\n", cmd.content.location.lat-currLocation.lat);
+	hal.console->printf("Change longitude: %lu\n", cmd.content.location.lng-currLocation.lng);
+	if (currLocation.lat == cmd.content.location.lat && currLocation.lng == cmd.content.location.lng) return true;
+
+    return false;
 }
 
 void Diversion::mission_complete (void) {
 	complete = true;
     hal.console->printf("\nMission Complete!\n");
-}
+}*/
 
 void Diversion::init_mission () {
     AP_Mission::Mission_Command cmd;
 
-    mission.clear();
+    copter.mode_auto.mission.clear();
 
     hal.console->printf("Adding commands...\n");
     // Command #0 : home
     cmd.id = MAV_CMD_NAV_WAYPOINT;
     cmd.content.location = Location{
-        12345678,
-        23456789,
         0,
-        Location::AltFrame::ABSOLUTE
+        0,
+        0,
+        Location::AltFrame::ABOVE_HOME
     };
-    if (!mission.add_cmd(cmd)) {
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 
@@ -66,10 +47,10 @@ void Diversion::init_mission () {
     cmd.content.location = Location{
         0,
         0,
-        10,
-        Location::AltFrame::ABSOLUTE
+        100,
+        Location::AltFrame::ABOVE_HOME
     };
-    if (!mission.add_cmd(cmd)) {
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 
@@ -77,12 +58,12 @@ void Diversion::init_mission () {
     cmd.id = MAV_CMD_NAV_WAYPOINT;
     cmd.p1 = 0;
     cmd.content.location = Location{
-        12345678,
-        23456789,
-        11,
-        Location::AltFrame::ABSOLUTE
+        296718041,
+        -986694669,
+        100,
+        Location::AltFrame::ABOVE_HOME
     };
-    if (!mission.add_cmd(cmd)) {
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 
@@ -90,20 +71,25 @@ void Diversion::init_mission () {
     cmd.id = MAV_CMD_NAV_WAYPOINT;
     cmd.p1 = 0;
     cmd.content.location = Location{
-        1234567890,
-        -1234567890,
-        22,
-        Location::AltFrame::ABSOLUTE
+        296720470,
+        -986697057,
+        100,
+        Location::AltFrame::ABOVE_HOME
     };
-    if (!mission.add_cmd(cmd)) {
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 
     // Command #4 : do-jump to first waypoint 3 times
-    cmd.id = MAV_CMD_DO_JUMP;
-    cmd.content.jump.target = 2;
-    cmd.content.jump.num_times = 1;
-    if (!mission.add_cmd(cmd)) {
+    cmd.id = MAV_CMD_NAV_WAYPOINT;
+    cmd.p1 = 0;
+    cmd.content.location = Location{
+        296717426,
+        -986698332,
+        100,
+        Location::AltFrame::ABOVE_HOME
+    };
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 
@@ -114,9 +100,9 @@ void Diversion::init_mission () {
         0,
         0,
         0,
-        Location::AltFrame::ABSOLUTE
+        Location::AltFrame::ABOVE_HOME
     };
-    if (!mission.add_cmd(cmd)) {
+    if (!copter.mode_auto.mission.add_cmd(cmd)) {
         hal.console->printf("failed to add command\n");
     }
 }
@@ -125,17 +111,17 @@ void Diversion::print_mission () {
 	AP_Mission::Mission_Command cmd;
 
     // check for empty mission
-    if (mission.num_commands() == 0) {
+    if (copter.mode_auto.mission.num_commands() == 0) {
         hal.console->printf("No Mission!\n");
         return;
     }
 
-    hal.console->printf("Mission: %d commands\n",(int)mission.num_commands());
+    hal.console->printf("Mission: %d commands\n",(int)copter.mode_auto.mission.num_commands());
 
     // print each command
-    for(uint16_t i=0; i<mission.num_commands(); i++) {
+    for(uint16_t i=0; i<copter.mode_auto.mission.num_commands(); i++) {
         // get next command from eeprom
-        mission.read_cmd_from_storage(i,cmd);
+        copter.mode_auto.mission.read_cmd_from_storage(i,cmd);
 
         // print command position in list and mavlink id
         hal.console->printf("Cmd#%d mav-id:%d ", (int)cmd.index, (int)cmd.id);
@@ -171,15 +157,44 @@ void Diversion::runit () {
 
 		    // start mission
 		    hal.console->printf("Starting mission...\n");
-		    mission.start();
 		}
-
-		hal.console->printf("Updating...\n");
-		mission.update();
 	}
+}
+
+void Diversion::divert () {
+	AP_Mission::Mission_Command cmd;
+
+	cmd.id = MAV_CMD_NAV_WAYPOINT;
+	cmd.p1 = 0;
+	cmd.content.location = Location {
+		296716115,
+		-986696891,
+		100,
+		Location::AltFrame::ABOVE_HOME
+	};
+
+	hal.console->printf("Diverting...\n");
+	uint16_t curr_index = copter.mode_auto.mission.get_current_nav_index();
+	uint16_t start_index = curr_index;
+	AP_Mission::Mission_Command nxtCmd;
+	while (copter.mode_auto.mission.get_next_nav_cmd(curr_index, nxtCmd)) {
+		if (!copter.mode_auto.mission.replace_cmd(curr_index, cmd)) hal.console->printf("Failed to replace command\n");
+		cmd = nxtCmd;
+		curr_index++;
+	}
+	if (!copter.mode_auto.mission.add_cmd(cmd)) hal.console->printf("Failed to add command\n");
+
+	hal.console->printf("Updated commands...\n");
+	hal.console->printf("Restarting...\n");
+	copter.mode_auto.mission.reset();
+	print_mission();
+	if (!copter.mode_auto.mission.set_current_cmd(start_index)) hal.console->printf("Could not restart\n");
 }
 
 void running (Diversion &dv) {
 	dv.runit();
 }
 
+void divertit (Diversion &dv) {
+	dv.divert();
+}
