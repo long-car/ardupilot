@@ -12,6 +12,9 @@ int                 WiiDisplacementX=0;
 int                 WiiDisplacementY=0;
 #endif  // WII_CAMERA
 
+int userTimer = 0;
+AP_Mission::Mission_Command cmd;
+
 #endif  // USERHOOK_VARIABLES
 
 

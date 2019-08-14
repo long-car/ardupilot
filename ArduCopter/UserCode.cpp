@@ -1,9 +1,6 @@
 #include "Copter.h"
 #include "diversion.h"
 
-Diversion dv;
-int userTimer = 0;
-
 #ifdef USERHOOK_INIT
 void Copter::userhook_init()
 {
@@ -44,9 +41,19 @@ void Copter::userhook_SlowLoop()
 void Copter::userhook_SuperSlowLoop()
 {
     // put your 1Hz code here
-    running(dv);
     userTimer++;
-    if (userTimer == 100) divertit(dv);
+    if (userTimer == 150) {
+		cmd.id = MAV_CMD_NAV_WAYPOINT;
+		cmd.p1 = 0;
+		cmd.content.location = Location {
+			296716115,
+			-986696891,
+			100,
+			Location::AltFrame::ABOVE_HOME
+		};
+
+    	Diversion().divert(cmd);
+    }
 }
 #endif
 
