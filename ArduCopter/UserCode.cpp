@@ -41,34 +41,39 @@ void Copter::userhook_SlowLoop()
 void Copter::userhook_SuperSlowLoop()
 {
     // put your 1Hz code here
-    userTimer++;
-    if (userTimer == 150) {
-		cmd.id = MAV_CMD_NAV_WAYPOINT;
-		cmd.p1 = 0;
-		cmd.content.location = Location {
-			296719348,
-			-986691232,
-			100,
-			Location::AltFrame::ABOVE_HOME
-		};
-		cmd_lst[0] = cmd;
+    userTimer++;	// Update timer
 
+    // Trigger diversion after 150 seconds
+    if (userTimer == 150) {
+		cmd.id = MAV_CMD_NAV_WAYPOINT;	// Command ID set to waypoint navigation
+		cmd.p1 = 0;	// User controlled value set to zero because it's useless
+		cmd.content.location = Location {	// Assign location info for waypoint
+			296719348,	//	latitude
+			-986691232,	// 	longitude
+			100,		//	altitude in cm
+			Location::AltFrame::ABOVE_HOME	// altitude reference fram set to home
+		};
+		cmd_lst[0] = cmd;	// add command to cmd_lst array as first wp in diversion
+
+		// update cmd location to second waypoint destination
 		cmd.content.location = Location {
 			296720575,
 			-986692617,
 			100,
 			Location::AltFrame::ABOVE_HOME
 		};
-		cmd_lst[1] = cmd;
+		cmd_lst[1] = cmd;	// add command to list
 
+		// update cmd location to third waypoint destination
 		cmd.content.location = Location {
 			296719987,
 			-986694616,
 			100,
 			Location::AltFrame::ABOVE_HOME
 		};
-		cmd_lst[2] = cmd;
+		cmd_lst[2] = cmd;	// add command to list
 
+		// call divert to update mission with new commands from cmd_lst
     	if (!Diversion().divert(cmd_lst, 3)) hal.console->printf("Failed to Divert\n");
     }
 }

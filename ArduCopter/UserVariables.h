@@ -12,9 +12,9 @@ int                 WiiDisplacementX=0;
 int                 WiiDisplacementY=0;
 #endif  // WII_CAMERA
 
-int userTimer = 0;
-AP_Mission::Mission_Command cmd;
-AP_Mission::Mission_Command cmd_lst [3];
+int userTimer = 0;	// Timer to track number of seconds since startup to trigger diversion
+AP_Mission::Mission_Command cmd;	// Mission command
+AP_Mission::Mission_Command cmd_lst [3];	// Array of mission commands
 
 #endif  // USERHOOK_VARIABLES
 

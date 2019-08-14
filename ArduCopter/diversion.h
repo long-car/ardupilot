@@ -3,11 +3,16 @@
 
 #include <AP_Mission/AP_Mission.h>
 
+// Class to access flight mission and command diversions
 class Diversion {
 public:
+	// divert command for single command, automatically restarts mission from new command unless specified
 	bool divert (AP_Mission::Mission_Command &, bool restart = 1);
+
+	// divert command for a list of commands, specify number of commands as second param
 	bool divert (AP_Mission::Mission_Command [], int);
 private:
+	// prints mission
 	void print_mission ();
 };
 
