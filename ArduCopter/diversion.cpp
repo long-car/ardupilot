@@ -138,8 +138,10 @@ bool Diversion::replace (AP_Mission::Mission_Command &cmd, int start, int end) {
 	int saved_cmds = 0;
 	AP_Mission::Mission_Command nxtCmd;	// Command to hold next command
 	if (start != -1 && end != -1) {
+		// Calculate number of commands to save
 		saved_cmds = (start_index - curr_index) + 1 + (copter.mode_auto.mission.num_commands() - end);
 		AP_Mission::Mission_Command cmds [saved_cmds];
+		// Save commands before the start index
 		cmds[0] = copter.mode_auto.mission.get_current_nav_cmd();
 		int j = 1;
 		for (uint16_t i = curr_index; i < start_index; i++) {
@@ -147,8 +149,10 @@ bool Diversion::replace (AP_Mission::Mission_Command &cmd, int start, int end) {
 			cmds[j] = nxtCmd;
 			j++;
 		}
+		// Add command
 		cmds[j] = cmd;
 		j++;
+		// Save commands after the end index
 		for (int i = end+1; i < copter.mode_auto.mission.num_commands(); i++) {
 			copter.mode_auto.mission.get_next_nav_cmd(i, nxtCmd);
 			cmds[j] = nxtCmd;
@@ -195,13 +199,14 @@ bool Diversion::replace (AP_Mission::Mission_Command cmd[], int num_cmds, int st
 	hal.console->printf("Replacing %d Commands...\n", num_cmds);
 
 	// Update mission with each new command, starting with last command
+	// Call replace only the first time to avoid overwriting updated waypoints
 	for (int i = num_cmds-1; i >= 0; i--) {
 		if (i == num_cmds-1) {
 			if (!replace(cmd[i], start, end)) {
 				hal.console->printf("Failed to replace\n");
 			}
 		}
-		else if (i != 0) {
+		else if (i != 0) {	// Divert after to keep updated waypoints
 			if (!divert(cmd[i], start, 0)) {
 				hal.console->printf("Failed to replace\n");
 				ret = false;

@@ -43,7 +43,7 @@ void Copter::userhook_SuperSlowLoop()
     // put your 1Hz code here
     userTimer++;	// Update timer
 
-    // Trigger diversion after 150 seconds
+    // Trigger diversion after 30 seconds at waypoint 6
     if (userTimer == 30) {
 		cmd.id = MAV_CMD_NAV_WAYPOINT;	// Command ID set to waypoint navigation
 		cmd.p1 = 1;	// User controlled value set to zero because it's useless
@@ -76,6 +76,7 @@ void Copter::userhook_SuperSlowLoop()
 		// call divert to update mission with new commands from cmd_lst starting at waypoint 6
     	if (!Diversion().divert(cmd_lst, 3, 6)) hal.console->printf("Failed to Divert\n");
     }
+    // Replace commands 6-8 with new waypoints
     if (userTimer == 60) {
     	cmd.p1 = 2;
     	cmd.content.location = Location {	// Assign location info for waypoint
