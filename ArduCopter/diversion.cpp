@@ -142,8 +142,11 @@ bool Diversion::replace (AP_Mission::Mission_Command &cmd, int start, int end) {
 		saved_cmds = (start_index - curr_index) + 1 + (copter.mode_auto.mission.num_commands() - end);
 		AP_Mission::Mission_Command cmds [saved_cmds];
 		// Save commands before the start index
-		cmds[0] = copter.mode_auto.mission.get_current_nav_cmd();
-		int j = 1;
+		int j = 0;
+		if (start_index > curr_index) {
+			cmds[0] = copter.mode_auto.mission.get_current_nav_cmd();
+			j = 1;
+		}
 		for (uint16_t i = curr_index; i < start_index; i++) {
 			copter.mode_auto.mission.get_next_nav_cmd(i, nxtCmd);
 			cmds[j] = nxtCmd;
